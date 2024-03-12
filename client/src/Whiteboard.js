@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import { LuPencil } from "react-icons/lu";
-import { FaEraser } from "react-icons/fa";
+import IconButton from '@mui/material/IconButton';
+import Slider from '@mui/material/Slider';
+import { BiPencil } from 'react-icons/bi'; // Using react-icons for pencil
+import { FaEraser } from 'react-icons/fa'; // Using react-icons for eraser
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+
 
 const socket = io.connect('http://localhost:3001');  // Connect to Socket.io server
 
@@ -69,19 +74,33 @@ function Whiteboard() {
     };
 
     return (
-        <div>
-            <button onClick={() => { setTool('pencil'); canvasRef.current.style.cursor = 'crosshair'; }}><LuPencil /></button>
-            <input type="range" min="1" max="50" value={lineWidth} onChange={(e) => setLineWidth(e.target.value)} />
-            <button onClick={() => { setTool('eraser'); canvasRef.current.style.cursor = 'cell'; }}><FaEraser /></button>
+        <Box sx={{ flexGrow: 1 }}>
+            <Toolbar>
+                <IconButton color={tool === 'pencil' ? 'primary' : 'default'} onClick={() => setTool('pencil')}>
+                    <BiPencil />
+                </IconButton>
+                <Slider
+                    size="small"
+                    value={lineWidth}
+                    onChange={(e) => setLineWidth(e.target.value)}
+                    aria-label="Pencil Width"
+                    valueLabelDisplay="auto"
+                    min={1}
+                    max={50}
+                    sx={{ width: 200, mx: 2 }}
+                />
+                <IconButton color={tool === 'eraser' ? 'primary' : 'default'} onClick={() => setTool('eraser')}>
+                    <FaEraser />
+                </IconButton>
+            </Toolbar>
             <canvas
                 ref={canvasRef}
                 onMouseDown={startDrawing}
                 onMouseUp={stopDrawing}
                 onMouseMove={draw}
-                style={{ border: '1px solid black' }}
+                style={{ border: '1px solid black', width: '100%', height: 'calc(100vh - 64px)' }}
             />
-        </div>
+        </Box>
     );
 }
-
 export default Whiteboard;
