@@ -20,12 +20,13 @@ function Whiteboard() {
         const canvas = canvasRef.current;
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
+    
         const context = canvas.getContext('2d');
         context.lineCap = 'round';
-
-        const drawLine = (x0, y0, x1, y1, lineWidth, isEraser) => {
+    
+        const drawLine = (x0, y0, x1, y1, lineWidth, color, isEraser) => {
             context.lineWidth = lineWidth;
+            context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : color;
             context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
             context.beginPath();
             context.moveTo(x0, y0);
@@ -33,12 +34,20 @@ function Whiteboard() {
             context.stroke();
             context.closePath();
         };
-
-        socket.on('drawing', (data) => {
-            drawLine(data.x0, data.y0, data.x1, data.y1, data.lineWidth, data.isEraser);
+    
+        // Handle new event to load drawing
+        socket.on('loadDrawing', (drawingActions) => {
+            drawingActions.forEach(action => {
+                drawLine(action.x0, action.y0, action.x1, action.y1, action.lineWidth, action.color, action.isEraser);
+            });
         });
-
+    
+        socket.on('drawing', (data) => {
+            drawLine(data.x0, data.y0, data.x1, data.y1, data.lineWidth, data.color, data.isEraser);
+        });
+    
     }, []);
+    
 
     const drawLine = (x0, y0, x1, y1, lineWidth, isEraser) => {
         const context = canvasRef.current.getContext('2d');
