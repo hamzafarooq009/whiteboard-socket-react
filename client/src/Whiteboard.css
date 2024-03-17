@@ -1,0 +1,21 @@
+.app-container {
+    display: flex;
+    flex-direction: row; /* Align children (toolbar and content) horizontally */
+    height: 100vh; /* Full height of the viewport */
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column; /* Align toolbar items vertically */
+    justify-content: flex-start; /* Align items to the start of the toolbar */
+    align-items: center; /* Center items horizontally */
+    width: 60px; /* Fixed width of the toolbar */
+    height: 100%; /* Full height */
+    background-color: #f4f4f4; /* Background color of the toolbar */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Optional: add shadow for depth */
+}
+
+.main-content {
+    flex-grow: 1; /* Take up the remaining space */
+    overflow: auto; /* Add scroll for overflow content */
+}

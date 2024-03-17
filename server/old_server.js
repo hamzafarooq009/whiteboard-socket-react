@@ -34,6 +34,11 @@ io.on('connection', (socket) => {
     // Emit to all clients, including the sender
     io.emit('drawing', data); // Replace `socket.broadcast.emit` with `io.emit`
   });
+    // Listen for image data from a client
+    socket.on('image', (data) => {
+      // Broadcast the image data to all other clients
+      socket.broadcast.emit('image', data);
+  });
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');

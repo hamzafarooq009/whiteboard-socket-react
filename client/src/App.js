@@ -1,13 +1,16 @@
-import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Homepage from './Homepage';
 import Whiteboard from './Whiteboard';
 
 function App() {
   return (
-    <div className="App">
-      <h1>Simple Whiteboard</h1>
-      <Whiteboard />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/whiteboard/:id" element={<Whiteboard />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
+export default App
