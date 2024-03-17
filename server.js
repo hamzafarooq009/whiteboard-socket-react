@@ -20,8 +20,19 @@ io.on('connection', (socket) => {
   socket.emit('loadDrawing', drawingActions);
 
   socket.on('drawing', (data) => {
+    // Handle different drawing actions based on a type property
+    if (data.tool === 'text') {
+      // This is a text drawing action
+      console.log('Received text drawing action');
+    } else {
+      // This is a line drawing action
+      console.log('Received line drawing action');
+    }
+
     drawingActions.push(data); // Store new drawing action
-    socket.broadcast.emit('drawing', data); // Emit to all clients except the sender
+    
+    // Emit to all clients, including the sender
+    io.emit('drawing', data); // Replace `socket.broadcast.emit` with `io.emit`
   });
 
   socket.on('disconnect', () => {
