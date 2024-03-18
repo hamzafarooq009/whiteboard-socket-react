@@ -1,12 +1,46 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require("socket.io"); // Correctly import Server from socket.io
 const session = require('express-session');
+const cors = require('cors');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const { User, Whiteboard } = require('./models');
 
-
 const app = express();
+// app.use(cors());
+const server = http.createServer(app);
+const io = new Server(server); // Use Server to create a new instance
+
+
+const corsOptions = {
+  origin: 'http://localhost:3001', // or use a specific origin
+  credentials: true, // to allow cookies
+};
+
+app.use(cors(corsOptions));
+
+// Handle connection
+io.on('connection', (socket) => {
+  console.log('a user connected', socket.id);
+
+  // Join a specific whiteboard room
+  socket.on('join whiteboard', (whiteboardId) => {
+      socket.join(whiteboardId);
+      console.log(`Socket ${socket.id} joined whiteboard ${whiteboardId}`);
+  });
+
+  // Broadcast changes to users in the same whiteboard room
+  socket.on('draw', (data) => {
+      socket.to(data.whiteboardId).emit('draw', data);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+      console.log('user disconnected');
+  });
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -227,9 +261,54 @@ app.delete('/whiteboards/:id', async (req, res) => {
   }
 });
 
+app.put('/whiteboards/:id/share', async (req, res) => {
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
+
+  if (!req.isAuthenticated()) {
+      return res.status(401).send('User is not authenticated');
+  }
+
+  try {
+      const whiteboard = await Whiteboard.findById(req.params.id);
+      if (!whiteboard) {
+          return res.status(404).send('Whiteboard not found');
+      }
+
+      if (!whiteboard.owner.equals(req.user._id)) {
+          return res.status(403).send('User is not authorized to share this whiteboard');
+      }
+
+      const { userId } = req.body; // ID of the user to share with
+      if (!whiteboard.sharedWith.includes(userId)) {
+          whiteboard.sharedWith.push(userId);
+          await whiteboard.save();
+      }
+
+      res.send(whiteboard);
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Error sharing the whiteboard');
+  }
+});
+
+// Testing
+app.get('/test-auth', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send('User is not authenticated');
+  }
+  return res.send('User is authenticated');
+});
+
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Replace app.listen with server.listen
+// server.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
