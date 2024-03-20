@@ -9,10 +9,8 @@ const bcrypt = require('bcryptjs');
 const { User, Whiteboard } = require('./models');
 
 const app = express();
-// app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server); // Use Server to create a new instance
-
 
 const corsOptions = {
   origin: 'http://localhost:3001', // or use a specific origin
