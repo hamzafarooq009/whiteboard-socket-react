@@ -8,11 +8,11 @@ const userSchema = new mongoose.Schema({
 
 const whiteboardSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    content: { type: String, required: true }, // This could be JSON or any format that suits your front-end
+    content: { type: String, required: true },
+    canvasState: { type: String }, // New field to store canvas state
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
-
 
 
 // Password hashing middleware.

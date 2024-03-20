@@ -1,33 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext'; // Adjust path as necessary
 
-function LoginComponent({ onLogin }) {
+function LoginComponent() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include',
-      });
-  
-      if (response.ok) {
-        onLogin(true);
-      } else {
-        const errorText = await response.text();
-        alert(`Login failed: ${errorText}`);
-      }
-    } catch (error) {
-      console.error('Error during fetch: ', error);
-      alert('Login failed. Please check your network connection and try again.');
+    const response = await fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      setIsLoggedIn(true);
+      navigate('/dashboard'); // Redirect to the dashboard
+    } else {
+      alert('Login failed. Please try again.');
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit}>

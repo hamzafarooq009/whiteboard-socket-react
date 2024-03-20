@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function RegistrationComponent({ onRegister }) {
+
+function RegistrationComponent() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');  // State to store error messages
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(''); // Clear previous error messages
     const response = await fetch('http://localhost:3000/register', {
       method: 'POST',
       headers: {
@@ -17,29 +21,19 @@ function RegistrationComponent({ onRegister }) {
     });
 
     if (response.ok) {
-      onRegister(true); // Update parent component's state or redirect to login
+        navigate('/login');  // Redirect to login after successful registration
     } else {
-      const errorText = await response.text();  // Get the error message from the response
-      setErrorMessage(errorText || 'Registration failed. Please try again.'); // Set the error message
+      const errorText = await response.text();
+      setErrorMessage(errorText || 'Registration failed. Please try again.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       <button type="submit">Register</button>
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>} {/* Display the error message */}
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
     </form>
   );
 }

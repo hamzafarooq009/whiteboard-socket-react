@@ -63,14 +63,6 @@ mongoose.connection.once('open', () => {
   console.log('MongoDB connected successfully');
 });
 
-
-// // Express session setup
-// app.use(session({
-//   secret: 'secret', // Choose a strong secret for session encryption
-//   resave: false,
-//   saveUninitialized: false,
-// }));
-
 app.use(session({
   secret: 'mySuperSecretString123!@#',
   resave: false,
@@ -181,17 +173,25 @@ app.post('/whiteboards', async (req, res) => {
 
 app.get('/whiteboards', async (req, res) => {
   if (!req.isAuthenticated()) {
-      return res.status(401).send('User is not authenticated');
+    return res.status(401).send('User is not authenticated');
   }
 
   try {
-      const whiteboards = await Whiteboard.find({ owner: req.user._id });
-      res.send(whiteboards);
+    // Fetch whiteboards where the current user is either the owner or is in the sharedWith array
+    const whiteboards = await Whiteboard.find({
+      $or: [
+        { owner: req.user._id },
+        { sharedWith: req.user._id }
+      ]
+    }).populate('owner', 'username').exec(); // Optionally populate owner details
+
+    res.send(whiteboards);
   } catch (err) {
-      console.error(err);
-      res.status(500).send('Error retrieving whiteboards');
+    console.error(err);
+    res.status(500).send('Error retrieving whiteboards');
   }
 });
+
 
 
 app.get('/whiteboards/:id', async (req, res) => {
@@ -262,9 +262,64 @@ app.delete('/whiteboards/:id', async (req, res) => {
 });
 
 app.put('/whiteboards/:id/share', async (req, res) => {
-  console.log("Session:", req.session);
-  console.log("User:", req.user);
+  if (!req.isAuthenticated()) {
+    return res.status(401).send('User is not authenticated');
+  }
 
+  const { username } = req.body;
+  try {
+    const userToShareWith = await User.findOne({ username: username });
+    if (!userToShareWith) {
+      return res.status(404).send('User not found');
+    }
+
+    const whiteboard = await Whiteboard.findById(req.params.id);
+    if (!whiteboard) {
+      return res.status(404).send('Whiteboard not found');
+    }
+
+    if (!whiteboard.owner.equals(req.user._id)) {
+      return res.status(403).send('User is not authorized to share this whiteboard');
+    }
+
+    if (!whiteboard.sharedWith.includes(userToShareWith._id)) {
+      whiteboard.sharedWith.push(userToShareWith._id);
+      await whiteboard.save();
+    }
+
+    res.send('Whiteboard shared successfully');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error sharing the whiteboard');
+  }
+});
+
+
+app.post('/whiteboards/:id/saveState', async (req, res) => {
+  if (!req.isAuthenticated()) {
+      return res.status(401).send('User is not authenticated');
+  }
+
+  const { canvasData } = req.body;
+  try {
+      const whiteboard = await Whiteboard.findById(req.params.id);
+      if (!whiteboard) {
+          return res.status(404).send('Whiteboard not found');
+      }
+      if (!whiteboard.owner.equals(req.user._id)) {
+          return res.status(403).send('User is not authorized to update this whiteboard');
+      }
+
+      whiteboard.canvasState = canvasData;
+      await whiteboard.save();
+      res.status(200).send('Canvas state saved');
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Error saving canvas state');
+  }
+});
+
+app.get('/whiteboards/:id/getState', async (req, res) => {
   if (!req.isAuthenticated()) {
       return res.status(401).send('User is not authenticated');
   }
@@ -274,23 +329,17 @@ app.put('/whiteboards/:id/share', async (req, res) => {
       if (!whiteboard) {
           return res.status(404).send('Whiteboard not found');
       }
-
       if (!whiteboard.owner.equals(req.user._id)) {
-          return res.status(403).send('User is not authorized to share this whiteboard');
+          return res.status(403).send('User is not authorized to view this whiteboard');
       }
 
-      const { userId } = req.body; // ID of the user to share with
-      if (!whiteboard.sharedWith.includes(userId)) {
-          whiteboard.sharedWith.push(userId);
-          await whiteboard.save();
-      }
-
-      res.send(whiteboard);
+      res.status(200).send({ canvasData: whiteboard.canvasState });
   } catch (err) {
       console.error(err);
-      res.status(500).send('Error sharing the whiteboard');
+      res.status(500).send('Error retrieving canvas state');
   }
 });
+
 
 // Testing
 app.get('/test-auth', (req, res) => {
@@ -300,6 +349,21 @@ app.get('/test-auth', (req, res) => {
   return res.send('User is authenticated');
 });
 
+app.get('/current-user', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send('User is not authenticated');
+  }
+
+  // Assuming req.user is the user object added by Passport.js after successful authentication
+  // You might want to limit the information sent back to the client for security reasons
+  const userToSend = {
+    id: req.user.id,
+    username: req.user.username,
+    // Add other fields as needed, but avoid sending sensitive information
+  };
+
+  res.send(userToSend);
+});
 
 
 // Start server
