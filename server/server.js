@@ -192,6 +192,7 @@ app.get('/whiteboards', async (req, res) => {
 
 
 
+// Server.js - GET /whiteboards/:id route
 app.get('/whiteboards/:id', async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send('User is not authenticated');
@@ -202,7 +203,7 @@ app.get('/whiteboards/:id', async (req, res) => {
     if (!whiteboard) {
       return res.status(404).send('Whiteboard not found');
     }
-    if (!whiteboard.owner.equals(req.user._id)) {
+    if (!whiteboard.owner.equals(req.user._id) && !whiteboard.sharedWith.map(id => id.toString()).includes(req.user.id)) {
       return res.status(403).send('User is not authorized to view this whiteboard');
     }
     res.send(whiteboard);
@@ -244,6 +245,11 @@ app.delete('/whiteboards/:id', async (req, res) => {
 
   try {
     const whiteboard = await Whiteboard.findById(req.params.id);
+    // In your GET /whiteboards/:id route
+    if (!whiteboard.owner.equals(req.user._id) && !whiteboard.sharedWith.includes(req.user._id)) {
+      return res.status(403).send('User is not authorized to view this whiteboard');
+    }
+
     if (!whiteboard) {
       return res.status(404).send('Whiteboard not found');
     }
@@ -327,7 +333,7 @@ app.get('/whiteboards/:id/getState', async (req, res) => {
       if (!whiteboard) {
           return res.status(404).send('Whiteboard not found');
       }
-      if (!whiteboard.owner.equals(req.user._id)) {
+      if (!whiteboard.owner.equals(req.user._id) && !whiteboard.sharedWith.includes(req.user._id)) {
           return res.status(403).send('User is not authorized to view this whiteboard');
       }
 

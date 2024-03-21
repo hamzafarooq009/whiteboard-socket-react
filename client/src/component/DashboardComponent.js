@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../component/AuthContext';
-import { 
-  Card, CardContent, Typography, Grid, Modal, Box, TextField, Button 
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../component/AuthContext";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Modal,
+  Box,
+  TextField,
+  Button,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 function DashboardComponent() {
   const { isLoggedIn, currentUser } = useAuth();
@@ -13,7 +19,6 @@ function DashboardComponent() {
   const [whiteboards, setWhiteboards] = useState([]);
   const [newWhiteboardTitle, setNewWhiteboardTitle] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -29,7 +34,7 @@ function DashboardComponent() {
   }, [isLoggedIn, navigate]);
 
   const createWhiteboard = () => {
-          // Close modal and create whiteboard logic here
+    // Close modal and create whiteboard logic here
     setModalOpen(false);
 
     const requestBody = {
@@ -55,7 +60,6 @@ function DashboardComponent() {
       });
   };
 
-
   const handleOpenModal = () => {
     setModalOpen(true);
   };
@@ -70,16 +74,15 @@ function DashboardComponent() {
 
   // Modal style
   const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: 'background.paper',
+    bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
   };
-
 
   return (
     <div>
@@ -89,9 +92,19 @@ function DashboardComponent() {
       <Grid container spacing={3}>
         {/* Card to add new whiteboard */}
         <Grid item xs={12} sm={6} md={4} lg={3}>
-          <Card sx={{ minHeight: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CardContent onClick={handleOpenModal} style={{ textAlign: 'center' }}>
-              <AddIcon color="primary" style={{ fontSize: '3rem' }} />
+          <Card
+            sx={{
+              minHeight: 140,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CardContent
+              onClick={handleOpenModal}
+              style={{ textAlign: "center" }}
+            >
+              <AddIcon color="primary" style={{ fontSize: "3rem" }} />
               <Typography variant="h5">CREATE WHITEBOARD</Typography>
             </CardContent>
           </Card>
@@ -104,9 +117,11 @@ function DashboardComponent() {
               <CardContent onClick={() => goToWhiteboard(whiteboard._id)}>
                 <Typography variant="h5">{whiteboard.title}</Typography>
                 <Typography color="textSecondary">
-                  {whiteboard.owner.username === currentUser.username
-                    ? 'Owned by you'
-                    : `Shared by ${whiteboard.owner.username}`}
+                  {whiteboard.owner
+                    ? whiteboard.owner.username === currentUser.username
+                      ? "Owned by you"
+                      : `Shared by ${whiteboard.owner.username}`
+                    : "Loading owner..."}
                 </Typography>
                 <Typography color="textSecondary">
                   Updated: {new Date(whiteboard.updatedAt).toLocaleString()}
@@ -123,14 +138,18 @@ function DashboardComponent() {
           <Typography variant="h6" component="h2">
             Create a new whiteboard
           </Typography>
-          <TextField 
-            fullWidth 
+          <TextField
+            fullWidth
             margin="normal"
-            label="Whiteboard Title" 
-            value={newWhiteboardTitle} 
-            onChange={(e) => setNewWhiteboardTitle(e.target.value)} 
+            label="Whiteboard Title"
+            value={newWhiteboardTitle}
+            onChange={(e) => setNewWhiteboardTitle(e.target.value)}
           />
-          <Button variant="contained" color="primary" onClick={createWhiteboard}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={createWhiteboard}
+          >
             Create
           </Button>
         </Box>
