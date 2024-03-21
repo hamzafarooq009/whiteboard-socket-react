@@ -310,7 +310,7 @@ app.post('/whiteboards/:id/saveState', async (req, res) => {
       if (!whiteboard) {
           return res.status(404).send('Whiteboard not found');
       }
-      if (!whiteboard.owner.equals(req.user._id)) {
+      if (!whiteboard.owner.equals(req.user._id) && !whiteboard.sharedWith.includes(req.user._id)) {
           return res.status(403).send('User is not authorized to update this whiteboard');
       }
 
