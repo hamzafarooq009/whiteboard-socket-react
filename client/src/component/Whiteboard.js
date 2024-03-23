@@ -20,7 +20,8 @@ function Whiteboard() {
   const [color, setColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(5);
   const [shareUsername, setShareUsername] = useState('');
-  
+  const [userCursors, setUserCursors] = useState({});
+
 
   useEffect(() => {
     // Avoid setting up the socket if currentUser is not valid
@@ -45,10 +46,23 @@ function Whiteboard() {
       }
     };
 
+    const handleRemoteCursorMove = (cursorData) => {
+      // Update the state to trigger a re-render
+      // This can be an object with userId as keys and cursor positions as values
+      // For example: { 'user1': {x: 10, y: 20}, 'user2': {x: 30, y: 40}, ... }
+      setUserCursors((prevCursors) => ({
+        ...prevCursors,
+        [cursorData.userId]: cursorData.position,
+      }));
+    };
+
     newSocket.on('draw', drawFromSocket);
+    newSocket.on('cursor move', handleRemoteCursorMove)
+
 
     return () => {
       newSocket.off('draw', drawFromSocket);
+      newSocket.off('remote cursor move', handleRemoteCursorMove);
       newSocket.close();
     };
   }, [id, currentUser]);
@@ -61,6 +75,19 @@ function Whiteboard() {
     canvas.height = window.innerHeight;
     const context = canvas.getContext("2d");
     context.lineCap = "round";
+
+    // Clear canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Redraw all cursors
+    Object.entries(userCursors).forEach(([userId, position]) => {
+      if (userId !== currentUser.id) { // Don't draw the current user's cursor
+        context.fillStyle = 'red'; // Use a unique color for each user if desired
+        context.beginPath();
+        context.arc(position.x, position.y, 10, 0, Math.PI * 2);
+        context.fill();
+      }
+    });
 
     // Load the saved state
     fetchSavedCanvasState(id).then((savedState) => {
@@ -143,12 +170,26 @@ function Whiteboard() {
     });
   };
 
+  const handleMouseMove = (event) => {
+    draw(event);
+
+    if (socket) {
+      socket.emit('cursor move', {
+        whiteboardId: id,
+        userId: currentUser.id,
+        x: event.nativeEvent.offsetX,
+        y: event.nativeEvent.offsetY,
+      });
+    }
+  };
+
   return (
     <Box>
       <canvas
         ref={canvasRef}
         onMouseDown={startDrawing}
-        onMouseMove={draw}
+        // onMouseMove={draw}
+        onMouseMove={handleMouseMove}
         onMouseUp={stopDrawing}
         style={{ border: "1px solid black" }}
       />

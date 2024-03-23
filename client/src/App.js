@@ -7,6 +7,8 @@ import DashboardComponent from './component/DashboardComponent';
 import Whiteboard from './component/Whiteboard';
 import { AuthProvider, useAuth } from './component/AuthContext';
 import Layout from '../src/Layout'; // Import the Layout component
+import HomePage from './HomePage';
+
 
 const PrivateRoute = ({ children }) => {
   const { isLoggedIn } = useAuth();
@@ -18,6 +20,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<HomePage />} /> {/* Add the HomePage route */}
           <Route path="/login" element={<LoginComponent />} />
           <Route path="/register" element={<RegistrationComponent />} />
           <Route path="/dashboard" element={<PrivateRoute><DashboardComponent /></PrivateRoute>} />
