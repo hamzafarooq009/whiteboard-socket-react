@@ -1,14 +1,15 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-import Tooltip from '@mui/material/Tooltip';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { useAuth } from '../component/AuthContext';
 
 import { Box, Button, TextField, IconButton, Popover, Typography, Toolbar } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import FitScreenIcon from '@mui/icons-material/FitScreen'; // Icon may differ
 
-// const socket = io.connect("http://localhost:3000"); // Connect to Socket.io server
 
 function Whiteboard() {
   const { id } = useParams();
@@ -25,6 +26,26 @@ function Whiteboard() {
   const [lineWidth, setLineWidth] = useState(5);
   const [shareUsername, setShareUsername] = useState('');
   const [userCursors, setUserCursors] = useState({});
+
+  const [scale, setScale] = useState(1); // Default scale is 1
+
+  const [elements, setElements] = useState([]);
+
+
+  // Define the handler functions for zoom and fit
+  const handleZoomIn = () => {
+    setScale(scale + 0.1);
+  };
+
+  const handleZoomOut = () => {
+    if (scale > 0.1) setScale(scale - 0.1);  // Prevent scaling to zero or negative values
+  };
+
+  const handleFitToSize = () => {
+    // Assume a default scale of 1 for fitting to size
+    setScale(1);
+  };
+
 
 
   useEffect(() => {
@@ -102,6 +123,32 @@ function Whiteboard() {
       }
     });
   }, [id]);
+
+// Function to redraw the canvas content
+const redrawCanvasContent = (context, scale) => {
+  if (!context) return;
+
+  // Clear the canvas and reset transformations
+  context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  context.save();
+  context.scale(scale, scale);
+
+  // Redraw all elements here based on the elements array
+  // This is an example for drawing rectangles
+  elements.forEach(element => {
+    context.fillStyle = element.color;
+    context.fillRect(element.x, element.y, element.width, element.height);
+  });
+
+  context.restore();
+};
+
+// useEffect to listen to scale changes and redraw the canvas
+useEffect(() => {
+  const context = canvasRef.current.getContext('2d');
+  redrawCanvasContent(context, scale);
+}, [scale, elements]);
+
 
   const shareWhiteboard = () => {
     // Call API to share the whiteboard with the specified username
@@ -261,6 +308,24 @@ function Whiteboard() {
         onMouseUp={stopDrawing}
         style={{ border: "1px solid black" }}
       />
+      {/* Zoom and fit controls */}
+      <Box sx={{
+        position: 'absolute',
+        bottom: 16,
+        right: 16,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <IconButton onClick={handleZoomIn}>
+          <ZoomInIcon />
+        </IconButton>
+        <IconButton onClick={handleZoomOut}>
+          <ZoomOutIcon />
+        </IconButton>
+        <IconButton onClick={handleFitToSize}>
+          <FitScreenIcon />
+        </IconButton>
+      </Box>
     </Box>
   );
 }
