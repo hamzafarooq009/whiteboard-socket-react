@@ -1,11 +1,12 @@
-import React, { useRef, useEffect, useState, useContext } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import { useParams } from "react-router-dom";
-import { io } from "socket.io-client"
-import { useAuth } from "../component/AuthContext"; // Import AuthContext
+import React, { useRef, useEffect, useState } from 'react';
 
+import Tooltip from '@mui/material/Tooltip';
+import { useParams } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import { useAuth } from '../component/AuthContext';
+
+import { Box, Button, TextField, IconButton, Popover, Typography, Toolbar } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
 
 // const socket = io.connect("http://localhost:3000"); // Connect to Socket.io server
 
@@ -13,6 +14,9 @@ function Whiteboard() {
   const { id } = useParams();
   const { currentUser } = useAuth(); // Use currentUser from AuthContext
   const [socket, setSocket] = useState(null);
+
+  const [anchorEl, setAnchorEl] = useState(null); // For popover control
+
 
   
   const canvasRef = useRef(null);
@@ -183,8 +187,72 @@ function Whiteboard() {
     }
   };
 
+
+      // Function to handle click on share button
+  const handleShareClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Function to close the popover
+  const handleShareClose = () => {
+    setAnchorEl(null);
+  };
+ 
+  const isPopoverOpen = Boolean(anchorEl); // Renamed for clarity
+  const popoverId = isPopoverOpen ? 'share-popover' : undefined;
+
   return (
-    <Box>
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* Mini toolbar for sharing options */}
+      <Toolbar
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          background: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '0 0 0 10px', // Round only the bottom-left corner
+          p: '10px', // Padding inside the toolbar
+        }}
+      >
+        <IconButton onClick={handleShareClick}>
+          <ShareIcon />
+        </IconButton>
+        <Popover
+          id={popoverId} // Use the new variable name here
+          open={isPopoverOpen} // And here
+          anchorEl={anchorEl}
+          onClose={handleShareClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <Box p={2}>
+            <Typography variant="body1" gutterBottom>Share this whiteboard</Typography>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              value={shareUsername}
+              onChange={(e) => setShareUsername(e.target.value)}
+              size="small"
+              margin="dense"
+            />
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={shareWhiteboard}
+              sx={{ mt: 1 }}
+            >
+              Share
+            </Button>
+          </Box>
+        </Popover>
+      </Toolbar>
       <canvas
         ref={canvasRef}
         onMouseDown={startDrawing}
@@ -193,13 +261,6 @@ function Whiteboard() {
         onMouseUp={stopDrawing}
         style={{ border: "1px solid black" }}
       />
-      <TextField
-        label="Username"
-        variant="outlined"
-        value={shareUsername}
-        onChange={(e) => setShareUsername(e.target.value)}
-      />
-      <Button onClick={shareWhiteboard}>Share</Button>
     </Box>
   );
 }
