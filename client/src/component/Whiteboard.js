@@ -1,16 +1,50 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useParams } from "react-router-dom";
+import { io } from "socket.io-client"
+import { useAuth } from "../component/AuthContext"; // Import AuthContext
+
+
+// const socket = io.connect("http://localhost:3000"); // Connect to Socket.io server
 
 function Whiteboard() {
   const { id } = useParams();
+  const { currentUser } = useAuth(); // Use currentUser from AuthContext
+  const [socket, setSocket] = useState(null);
+  
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(5);
   const [shareUsername, setShareUsername] = useState('');
+
+  useEffect(() => {
+    // Initialize socket connection
+    const newSocket = io('http://localhost:3000', { withCredentials: true });
+    setSocket(newSocket);
+
+    return () => newSocket.close(); // Close socket connection on cleanup
+  }, [setSocket]);
+
+  useEffect(() => {
+    if (socket == null) return;
+
+    // Join the room for this whiteboard
+    socket.emit('join whiteboard', id, currentUser?.id);
+
+    socket.on('draw', (data) => {
+      if (data.userId !== currentUser?.id) { // Avoid processing own drawings
+        drawLine(data.x0, data.y1, data.x1, data.y1, data.color, data.lineWidth);
+      }
+    });
+
+    return () => {
+      socket.off('draw');
+      socket.emit('leave whiteboard', id, currentUser?.id);
+    };
+  }, [socket, id, currentUser]);
 
 
   useEffect(() => {
@@ -69,10 +103,13 @@ function Whiteboard() {
     drawLine(offsetX, offsetY, offsetX, offsetY); // Draw a dot
   };
 
+  // Draw function now emits data to the server as well
   const draw = ({ nativeEvent }) => {
-    if (!isDrawing) return;
+    if (!isDrawing || socket == null) return; // Check if socket is null
     const { offsetX, offsetY } = nativeEvent;
+    const data = { x0: offsetX, y0: offsetY, x1: offsetX, y1: offsetY, color, lineWidth, userId: currentUser.id, whiteboardId: id };
     drawLine(offsetX, offsetY, offsetX, offsetY);
+    socket.emit('draw', data);
   };
 
   const stopDrawing = () => {
