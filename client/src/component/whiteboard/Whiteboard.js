@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { useAuth } from '../component/AuthContext';
+import { useAuth } from '../AuthContext';
 
 import { Box, Button, TextField, IconButton, Popover, Typography, Toolbar } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';

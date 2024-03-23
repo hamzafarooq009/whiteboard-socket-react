@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../component/AuthContext";
+import { useAuth } from "../AuthContext";
 import {
   Card,
   CardContent,
   Typography,
   Grid,
-  Modal,
   Box,
-  TextField,
-  Button,
 } from "@mui/material";
 
-import { IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import WhiteboardCard from './WhiteboardCard';
+import CreateWhiteboardModal from './CreateWhiteboardModal';
+
+import { Menu, MenuItem } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-import { pink, deepPurple, amber } from "@mui/material/colors";
+import { pink, deepPurple } from "@mui/material/colors";
 
 function DashboardComponent() {
   const { isLoggedIn, currentUser } = useAuth();
@@ -116,11 +115,11 @@ function DashboardComponent() {
     p: 4,
   };
 
-  const renameWhiteboard = () => {
-    if (!renameInput.trim()) return; // Check if the input is not just spaces
+  const renameWhiteboard = (newName) => {
+    if (!newName.trim()) return; // Check if the input is not just spaces
 
     const requestBody = {
-      title: renameInput,
+      title: newName,
     };
 
     fetch(`http://localhost:3000/whiteboards/${currentBoardId}`, {
@@ -136,7 +135,7 @@ function DashboardComponent() {
           setWhiteboards(
             whiteboards.map((board) =>
               board._id === currentBoardId
-                ? { ...board, title: renameInput }
+                ? { ...board, title: newName }
                 : board
             )
           );
@@ -212,27 +211,8 @@ function DashboardComponent() {
         {/* Cards for existing whiteboards */}
         {whiteboards.map((whiteboard, index) => (
           <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-            <Card sx={{ minHeight: 140 }}>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="h5">{whiteboard.title}</Typography>
-                  <IconButton
-                    onClick={(e) => handleMenuOpen(e, whiteboard._id)}
-                    size="small"
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Box>
-                <Typography color="textSecondary">
-                  {whiteboard.owner?.username === currentUser?.username
-                    ? "Owned by you"
-                    : `Shared by ${whiteboard.owner?.username ?? "someone"}`}
-                </Typography>
-                <Typography color="textSecondary">
-                  Updated: {new Date(whiteboard.updatedAt).toLocaleString()}
-                </Typography>
-              </CardContent>
-            </Card>
+            <WhiteboardCard whiteboard={whiteboard} handleMenuOpen={handleMenuOpen} currentUser={currentUser} />
+
             <Menu
               anchorEl={menuAnchorEl}
               open={Boolean(menuAnchorEl && currentBoardId === whiteboard._id)}
@@ -244,8 +224,8 @@ function DashboardComponent() {
                     "Enter the new name for the whiteboard:"
                   );
                   if (newName && newName.trim()) {
-                    setRenameInput(newName);
-                    renameWhiteboard();
+                    // setRenameInput(newName);
+                    renameWhiteboard(newName);
                   }
                 }}
               >
@@ -273,27 +253,13 @@ function DashboardComponent() {
         ))}
       </Grid>
 
-      <Modal open={modalOpen} onClose={handleCloseModal}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" component="h2">
-            Create a new whiteboard
-          </Typography>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Whiteboard Title"
-            value={newWhiteboardTitle}
-            onChange={(e) => setNewWhiteboardTitle(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={createWhiteboard}
-          >
-            Create
-          </Button>
-        </Box>
-      </Modal>
+      <CreateWhiteboardModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        createWhiteboard={createWhiteboard}
+        newWhiteboardTitle={newWhiteboardTitle}
+        setNewWhiteboardTitle={setNewWhiteboardTitle}
+      />
     </Box>
   );
 }
