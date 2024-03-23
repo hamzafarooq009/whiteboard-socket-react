@@ -117,11 +117,9 @@ function DashboardComponent() {
               <CardContent onClick={() => goToWhiteboard(whiteboard._id)}>
                 <Typography variant="h5">{whiteboard.title}</Typography>
                 <Typography color="textSecondary">
-                  {whiteboard.owner
-                    ? whiteboard.owner.username === currentUser.username
-                      ? "Owned by you"
-                      : `Shared by ${whiteboard.owner.username}`
-                    : "Loading owner..."}
+                  {whiteboard.owner?.username === currentUser?.username
+                    ? "Owned by you"
+                    : `Shared by ${whiteboard.owner?.username ?? "someone"}`}
                 </Typography>
                 <Typography color="textSecondary">
                   Updated: {new Date(whiteboard.updatedAt).toLocaleString()}

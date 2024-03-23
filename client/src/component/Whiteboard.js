@@ -13,6 +13,7 @@ function Whiteboard() {
   const { id } = useParams();
   const { currentUser } = useAuth(); // Use currentUser from AuthContext
   const [socket, setSocket] = useState(null);
+
   
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -21,30 +22,36 @@ function Whiteboard() {
   const [shareUsername, setShareUsername] = useState('');
 
   useEffect(() => {
-    // Initialize socket connection
+    // Avoid setting up the socket if currentUser is not valid
+    if (!currentUser) return;
+    
     const newSocket = io('http://localhost:3000', { withCredentials: true });
     setSocket(newSocket);
+    newSocket.emit('join whiteboard', { whiteboardId: id, userId: currentUser.id });
 
-    return () => newSocket.close(); // Close socket connection on cleanup
-  }, [setSocket]);
-
-  useEffect(() => {
-    if (socket == null) return;
-
-    // Join the room for this whiteboard
-    socket.emit('join whiteboard', id, currentUser?.id);
-
-    socket.on('draw', (data) => {
-      if (data.userId !== currentUser?.id) { // Avoid processing own drawings
-        drawLine(data.x0, data.y1, data.x1, data.y1, data.color, data.lineWidth);
+    const drawFromSocket = (data) => {
+      if (!canvasRef.current) return;
+      const context = canvasRef.current.getContext('2d');
+      if (data.userId !== currentUser.id) {
+        context.beginPath();
+        context.strokeStyle = data.color;
+        // context.lineWidth = data.lineWidth;
+        context.lineWidth = "20";
+        context.moveTo(data.x0, data.y0);
+        context.lineTo(data.x1, data.y1);
+        context.stroke();
+        context.closePath();
       }
-    });
+    };
+
+    newSocket.on('draw', drawFromSocket);
 
     return () => {
-      socket.off('draw');
-      socket.emit('leave whiteboard', id, currentUser?.id);
+      newSocket.off('draw', drawFromSocket);
+      newSocket.close();
     };
-  }, [socket, id, currentUser]);
+  }, [id, currentUser]);
+  
 
 
   useEffect(() => {
@@ -86,16 +93,19 @@ function Whiteboard() {
     });
   };
 
-  const drawLine = (x0, y0, x1, y1) => {
-    const context = canvasRef.current.getContext("2d");
+  const drawLine = (x0, y0, x1, y1, lineColor, lineWidth) => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+  
     context.beginPath();
-    context.strokeStyle = color;
-    context.lineWidth = lineWidth;
+    context.strokeStyle = lineColor;
+    context.lineWidth = "20";
     context.moveTo(x0, y0);
     context.lineTo(x1, y1);
     context.stroke();
     context.closePath();
-  };
+  };  
 
   const startDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
@@ -109,6 +119,8 @@ function Whiteboard() {
     const { offsetX, offsetY } = nativeEvent;
     const data = { x0: offsetX, y0: offsetY, x1: offsetX, y1: offsetY, color, lineWidth, userId: currentUser.id, whiteboardId: id };
     drawLine(offsetX, offsetY, offsetX, offsetY);
+
+    console.log('Emitting draw event', data);
     socket.emit('draw', data);
   };
 

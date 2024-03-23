@@ -5,9 +5,12 @@ const passport = require("passport");
 
 const router = express.Router();
 
-// Routes
 router.post('/login', passport.authenticate('local'), (req, res) => {
-  res.send('Logged in');
+  // Assuming req.user contains the user data after successful authentication
+  const userData = req.user;
+
+  // Send back a JSON response with the message and user data
+  res.json({ message: "Logged in", user: userData });
 });
 
 router.post('/register', async (req, res) => {
