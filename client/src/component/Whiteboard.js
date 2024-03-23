@@ -20,6 +20,7 @@ function Whiteboard() {
   const [color, setColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(5);
   const [shareUsername, setShareUsername] = useState('');
+  
 
   useEffect(() => {
     // Avoid setting up the socket if currentUser is not valid

@@ -123,6 +123,11 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('cursor move', (data) => {
+    // Broadcast cursor move to other users in the same room
+    socket.to(data.whiteboardId).emit('remote cursor move', data);
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     // Clean up user association
