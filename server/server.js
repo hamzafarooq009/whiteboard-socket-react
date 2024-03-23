@@ -9,9 +9,13 @@ const mongoose = require('mongoose');
 const routes = require('./routes'); // Import routes
 const { User } = require('./models'); // Import models
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swaggerConfig');
+
 const app = express();
 const server = http.createServer(app);
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const corsOptions = {
   origin: ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'], // Include all origins your app needs to accept
