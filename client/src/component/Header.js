@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../component/AuthContext';
-import { AppBar, Toolbar, Typography, IconButton, Button, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Button, Menu, MenuItem, Box } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import { pink, deepPurple } from '@mui/material/colors';
 
 
 function Header() {
@@ -10,6 +11,28 @@ function Header() {
   const { currentUser, setIsLoggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  const indieStyle = {
+    appBar: {
+      backgroundColor: deepPurple[300],
+      color: "white",
+    },
+    title: {
+      flexGrow: 1,
+      fontFamily: '"Indie Flower", cursive', // Update with your actual font
+      fontWeight: 'bold',
+      color: "white",
+    },
+    iconButton: {
+      color: "white",
+    },
+    menu: {
+      '& .MuiPaper-root': {
+        backgroundColor: deepPurple[100],
+        color: deepPurple[900],
+      }
+    }
+  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,22 +63,21 @@ function Header() {
     });
   };
   
-
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={indieStyle.appBar}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={indieStyle.title}>
           Whiteboard App
         </Typography>
         {currentUser && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               size="large"
               edge="end"
               aria-label="account of current user"
               aria-haspopup="true"
               onClick={handleMenu}
-              color="inherit"
+              sx={indieStyle.iconButton}
             >
               <AccountCircleIcon />
             </IconButton>
@@ -76,10 +98,11 @@ function Header() {
               }}
               open={open}
               onClose={handleClose}
+              sx={indieStyle.menu}
             >
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-          </div>
+          </Box>
         )}
       </Toolbar>
     </AppBar>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../component/AuthContext";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../component/AuthContext';
 import {
   Card,
   CardContent,
@@ -10,8 +10,9 @@ import {
   Box,
   TextField,
   Button,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { pink, deepPurple, amber } from '@mui/material/colors';
 
 function DashboardComponent() {
   const { isLoggedIn, currentUser } = useAuth();
@@ -19,6 +20,20 @@ function DashboardComponent() {
   const [whiteboards, setWhiteboards] = useState([]);
   const [newWhiteboardTitle, setNewWhiteboardTitle] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Define the theme styles directly within the component
+  const theme = {
+    palette: {
+      primary: deepPurple[300],
+      secondary: pink['A200'],
+      background: {
+        default: "#f8f8f2"
+      }
+    },
+    typography: {
+      fontFamily: '"Indie Flower", cursive',
+    },
+  };
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -85,8 +100,21 @@ function DashboardComponent() {
   };
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.default,
+        p: 3,
+        minHeight: '100vh',
+      }}
+    >
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          fontFamily: theme.typography.fontFamily,
+          color: theme.palette.primary.main,
+        }}
+      >
         Dashboard
       </Typography>
       <Grid container spacing={3}>
@@ -152,7 +180,7 @@ function DashboardComponent() {
           </Button>
         </Box>
       </Modal>
-    </div>
+    </Box>
   );
 }
 
