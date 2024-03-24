@@ -25,20 +25,21 @@ const server = http.createServer(app);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+const corsOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:3001'];
+
 const corsOptions = {
-  origin: "*", // Read from environment variable
-  credentials: true, // to allow cookies
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
+  origin: (origin, callback) => {
+    if (corsOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 };
 
-const io = new Server(server, {
-  cors: {
-    origin: "*", // Read from environment variable
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
-    credentials: true,
-  },
-});
-
+const io = new Server(server, { cors: corsOptions });
 
 app.use(cors(corsOptions));
 
