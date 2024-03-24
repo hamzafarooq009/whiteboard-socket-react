@@ -47,7 +47,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
-const uri =process.env.MONGODB_URI
+const uri ="mongodb+srv://hamzafarooqlums:pR17OqcaWM9eQkUb@cluster0.x9ngjfh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+// const uri =process.env.MONGODB_URI
 
 if (!uri) {
   console.error('MONGODB_URI is not set');
