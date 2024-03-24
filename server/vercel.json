@@ -13,8 +13,8 @@
       }
     ],
     "env": {
-      "MONGODB_URI": "@mongodb_uri",
-      "SESSION_SECRET": "@session_secret"
-    }
+        "MONGODB_URI": "MONGODB_URI",
+        "SESSION_SECRET": "SESSION_SECRET"
+      }      
   }
   
