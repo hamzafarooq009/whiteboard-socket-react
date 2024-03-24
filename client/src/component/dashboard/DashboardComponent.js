@@ -55,7 +55,7 @@ function DashboardComponent() {
     if (!isLoggedIn) {
       navigate("/login");
     } else {
-      fetch("http://localhost:3000/whiteboards", {
+      fetch(`${process.env.REACT_APP_API_URL}/whiteboards`, {
         credentials: "include",
       })
         .then((response) => response.json())
@@ -73,7 +73,7 @@ function DashboardComponent() {
       content: "Initial content",
     };
 
-    fetch("http://localhost:3000/whiteboards", {
+    fetch(`${process.env.REACT_APP_API_URL}/whiteboards`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +122,7 @@ function DashboardComponent() {
       title: newName,
     };
 
-    fetch(`http://localhost:3000/whiteboards/${currentBoardId}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/whiteboards/${currentBoardId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -150,7 +150,7 @@ function DashboardComponent() {
   };
 
   const deleteWhiteboard = () => {
-    fetch(`http://localhost:3000/whiteboards/${currentBoardId}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/${currentBoardId}`, {
       method: "DELETE",
       credentials: "include",
     })

@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const fetchCurrentUser = async () => {
       if (isLoggedIn) {
         try {
-          const response = await fetch('http://localhost:3000/current-user', {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/current-user`, {
             credentials: 'include', // Necessary for sessions/cookies to work
           });
 

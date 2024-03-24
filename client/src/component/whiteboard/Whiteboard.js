@@ -53,7 +53,7 @@ function Whiteboard() {
     // Avoid setting up the socket if currentUser is not valid
     if (!currentUser) return;
     
-    const newSocket = io('http://localhost:3000', { withCredentials: true });
+    const newSocket = io(process.env.REACT_APP_API_URL, { withCredentials: true });
     setSocket(newSocket);
     newSocket.emit('join whiteboard', { whiteboardId: id, userId: currentUser.id });
 
@@ -153,7 +153,7 @@ useEffect(() => {
 
   const shareWhiteboard = () => {
     // Call API to share the whiteboard with the specified username
-    fetch(`http://localhost:3000/whiteboards/${id}/share`, {
+    fetch(`${process.env.REACT_APP_API_URL}/whiteboards/${id}/share`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -212,7 +212,7 @@ useEffect(() => {
   const saveCanvasState = () => {
     const canvas = canvasRef.current;
     const canvasData = canvas.toDataURL();
-    fetch(`http://localhost:3000/whiteboards/${id}/saveState`, {
+    fetch(`${process.env.REACT_APP_API_URL}/whiteboards/${id}/saveState`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -334,7 +334,7 @@ useEffect(() => {
 export default Whiteboard;
 
 async function fetchSavedCanvasState(id) {
-  const response = await fetch(`http://localhost:3000/whiteboards/${id}/getState`, { credentials: 'include' });
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/whiteboards/${id}/getState`, { credentials: 'include' });
   if (response.ok) {
     const { canvasData } = await response.json();
     return canvasData;

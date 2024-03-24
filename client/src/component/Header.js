@@ -44,7 +44,7 @@ function Header() {
 
   const handleLogout = () => {
     // Call the logout API
-    fetch('http://localhost:3000/logout', {
+    fetch(`${process.env.REACT_APP_API_URL}/logout`, {
       method: 'GET',
       credentials: 'include', // Necessary for sessions/cookies to work
     })

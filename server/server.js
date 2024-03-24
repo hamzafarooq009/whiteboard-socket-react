@@ -26,14 +26,14 @@ const server = http.createServer(app);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const corsOptions = {
-  origin: '*', // Read from environment variable
+  origin: "*", // Read from environment variable
   credentials: true, // to allow cookies
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
 };
 
 const io = new Server(server, {
   cors: {
-    origin: '*', // Read from environment variable
+    origin: "*", // Read from environment variable
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
     credentials: true,
   },

@@ -40,7 +40,7 @@ describe('DashboardComponent', () => {
     );
 
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
-    expect(fetch).toHaveBeenCalledWith("http://localhost:3000/whiteboards", {"credentials": "include"});
+    expect(fetch).toHaveBeenCalledWith(`${process.env.REACT_APP_API_URL}/whiteboards`, {"credentials": "include"});
   });
 
   it('opens the modal to create a new whiteboard', async () => {
