@@ -9,6 +9,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import FitScreenIcon from '@mui/icons-material/FitScreen'; // Icon may differ
+// import SharePopover from './SharePopover'; // Adjust the import path as needed
 
 
 function Whiteboard() {

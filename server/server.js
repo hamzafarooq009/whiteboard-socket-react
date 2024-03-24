@@ -6,6 +6,10 @@ const http = require('http');
 const { Server } = require("socket.io");
 
 const session = require('express-session');
+
+const MongoStore = require('connect-mongo');
+
+
 const cors = require('cors');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -44,6 +48,10 @@ app.use(express.urlencoded({ extended: false }));
 
 const uri =process.env.MONGODB_URI
 
+if (!uri) {
+  console.error('MONGODB_URI is not set');
+  process.exit(1);
+}
 
 // Connect to MongoDB
 mongoose.connect(uri);
@@ -58,12 +66,15 @@ mongoose.connection.once('open', () => {
 });
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET, // Your secret key
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if you're using HTTPS
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Set to true if serving over HTTPS
+    // Other cookie settings as per your security requirements
+  }
 }));
-
 
 // Passport middleware
 app.use(passport.initialize());
