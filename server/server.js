@@ -1,6 +1,10 @@
+require('dotenv').config(); // At the top of your server.js to load .env variables
+
 const express = require('express');
+
 const http = require('http');
 const { Server } = require("socket.io");
+
 const session = require('express-session');
 const cors = require('cors');
 const passport = require('passport');
@@ -18,14 +22,14 @@ const server = http.createServer(app);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const corsOptions = {
-  origin: ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'], // Include all origins your app needs to accept
+  origin: '*', // Read from environment variable
   credentials: true, // to allow cookies
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
 };
 
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'], // Include all origins your app needs to accept
+    origin: '*', // Read from environment variable
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Add other methods as per your needs
     credentials: true,
   },
@@ -38,7 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
-const uri = "mongodb+srv://hamzafarooqlums:pR17OqcaWM9eQkUb@cluster0.x9ngjfh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri =process.env.MONGODB_URI
 
 
 // Connect to MongoDB
@@ -54,7 +58,7 @@ mongoose.connection.once('open', () => {
 });
 
 app.use(session({
-  secret: 'mySuperSecretString123!@#',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if you're using HTTPS
@@ -102,6 +106,7 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
+
 
 // At the top of your server.js file, define the socketUserMap
 const socketUserMap = new Map();
