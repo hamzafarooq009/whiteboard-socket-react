@@ -13,44 +13,6 @@ import {
 } from "@mui/material";
 
 
-const indieLoginStyle = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    padding: "2rem",
-    background: "linear-gradient(135deg, #9575cd 30%, #7e57c2 90%)", // Custom gradient background
-  },
-  card: {
-    backgroundColor: "#7d5ba6", // A vibrant purple color for the card
-    color: "#ffffff", // White text for better readability
-    padding: "2rem",
-    borderRadius: "15px", // Rounded corners for a softer look
-    boxShadow: "0 4px 10px 0 rgba(0, 0, 0, 0.2)", // Subtle shadow for depth
-  },
-  title: {
-    fontFamily: '"Indie Flower", cursive', // Using Google Font
-    textAlign: "center",
-    margin: "0 0 2rem 0", // More space between title and form
-  },
-  button: {
-    backgroundColor: "#ff79c6", // A light pink color for buttons
-    color: "#282a36", // Dark color for the text to pop out
-    marginTop: "1rem", // Space above the button
-    padding: "10px 15px",
-    borderRadius: "20px", // Rounded button edges
-    "&:hover": {
-      backgroundColor: "#ff92d0", // A lighter pink on hover
-    },
-  },
-  input: {
-    // Custom styles for input fields
-  },
-  // Other custom styles...
-};
-
 function LoginComponent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -97,6 +59,7 @@ function LoginComponent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
       method: "POST",
       headers: {

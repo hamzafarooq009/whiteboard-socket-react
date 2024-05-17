@@ -10,18 +10,20 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import FitScreenIcon from '@mui/icons-material/FitScreen'; // Icon may differ
 // import SharePopover from './SharePopover'; // Adjust the import path as needed
+import MermaidToExcalidrawConverter from './MermaidToExcalidrawConverter';
 
 
 function Whiteboard() {
   const { id } = useParams();
+
   const { currentUser } = useAuth(); // Use currentUser from AuthContext
   const [socket, setSocket] = useState(null);
-
   const [anchorEl, setAnchorEl] = useState(null); // For popover control
 
 
   
   const canvasRef = useRef(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(5);
@@ -31,6 +33,8 @@ function Whiteboard() {
   const [scale, setScale] = useState(1); // Default scale is 1
 
   const [elements, setElements] = useState([]);
+  const [excalidrawElements, setExcalidrawElements] = useState([]);
+
 
 
   // Define the handler functions for zoom and fit
@@ -93,7 +97,6 @@ function Whiteboard() {
     };
   }, [id, currentUser]);
   
-
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -301,6 +304,7 @@ useEffect(() => {
           </Box>
         </Popover>
       </Toolbar>
+
       <canvas
         ref={canvasRef}
         onMouseDown={startDrawing}
@@ -309,6 +313,8 @@ useEffect(() => {
         onMouseUp={stopDrawing}
         style={{ border: "1px solid black" }}
       />
+            <MermaidToExcalidrawConverter setExcalidrawElements={setExcalidrawElements} />
+
       {/* Zoom and fit controls */}
       <Box sx={{
         position: 'absolute',

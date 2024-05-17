@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Card, CardContent, Typography, Alert, Box } from '@mui/material';
-// import YourVectorGraphic from './header-right-600.png'; // Update with your actual file path
-
 
 function RegistrationComponent() {
   const [username, setUsername] = useState('');

@@ -19,7 +19,9 @@ import { pink, deepPurple } from "@mui/material/colors";
 
 function DashboardComponent() {
   const { isLoggedIn, currentUser } = useAuth();
+
   const navigate = useNavigate();
+  
   const [whiteboards, setWhiteboards] = useState([]);
   const [newWhiteboardTitle, setNewWhiteboardTitle] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
